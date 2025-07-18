@@ -42,11 +42,14 @@
         <label class="form-label">Telefono</label>
         <input
           v-model="user.phone"
-          type="number"
+          placeholder="XXX-YYY-ZZZZ"
+          type="text"
           class="form-control"
           :class="{ 'is-invalid': v$.user.phone.$error }"
         />
-        <div class="invalid-feedback">Telefono deben ser solo numeros</div>
+        <div class="invalid-feedback">
+          Telefono debe ser de acuerdo al patron
+        </div>
       </div>
 
       <div class="mb-3">
@@ -77,57 +80,15 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
 import { reactive, computed } from "vue";
+import { helpers } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
-import { required, numeric, email } from "@vuelidate/validators";
-// export default {
-//   name: "NuevoUser",
-//   data() {
-//     return {
-//       title: "NewUser",
-//       user: reactive({
-//         id: "",
-//         name: "",
-//         email: "",
-//         address: "",
-//         phone: "",
-//         country: "",
-//         city: "",
-//       }),
-//       v$: null,
-//     };
-//   },
-//   components: {},
-//   created() {
-//     const rules = {
-//       user: {
-//         name: { required },
-//         email: { required },
-//         address: { required },
-//         phone: { required },
-//         country: { required },
-//         city: { required },
-//       },
-//     };
-//     this.v$ = useVuelidate(rules, { user: this.user });
-//   },
-//   methods: {
-//     async submit() {
-//       const isValid = await this.v$.$validate();
-//       if (!isValid) {
-//         alert("formulario con errores");
-//         return;
-//       }
-//       this.$emit("created", { ...this.user });
-//     },
-//   },
-//   emits: ["created"],
-//   computed: {},
-//   props: {},
-//   emits: [],
-// };
+import { required, email } from "@vuelidate/validators";
+
 const title = "Registro de nuevo usuario";
+const phoneValidatorCustom = helpers.regex(
+  /^(\+0?1\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
+);
 const user = reactive({
   name: "",
   email: "",
@@ -136,14 +97,22 @@ const user = reactive({
   country: "",
   city: "",
 });
+const borrarForm = () => {
+  user.name = "";
+  user.email = "";
+  user.address = "";
+  user.phone = "";
+  user.country = "";
+  user.city = "";
+};
 const emit = defineEmits(["created"]);
 const rules = computed(() => {
   return {
     user: {
       name: { required },
-      email: { required },
+      email: { required, email },
       address: { required },
-      phone: { required },
+      phone: { required, phoneValidatorCustom },
       country: { required },
       city: { required },
     },
@@ -158,5 +127,6 @@ const submit = async () => {
     return;
   }
   emit("created", { ...user });
+  borrarForm();
 };
 </script>

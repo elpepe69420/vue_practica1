@@ -6,21 +6,19 @@
     </button>
   </p>
   <div class="mb-3">
-    <!-- <div class="input-group">
-      <span class="input-group-text" id="basic-addon3">Filtrar por marca</span>
-      <select v-model="nameSeleccionado" id="color" class="form-select">
-        <option disabled value="">-- Selecciona --</option>
-        <option value="">Todos</option>
-        <option v-for="marca in marcas" :key="marca" :value="marca">
-          {{ marca }}
-        </option>
-      </select>
-    </div> -->
-  </div>
-  <div class="mb-3">
     <div class="input-group">
-      <span class="input-group-text" id="basic-addon3">Buscar por nombre</span>
-      <input type="search" v-model="nameBuscar" class="form-control" />
+      <select name="campo" id="campo" v-model="busqueda">
+        <option value="0">Sin filtro</option>
+        <option value="1">Nombre</option>
+        <option value="2">Correo</option>
+      </select>
+      <div v-show="busqueda == 1 || busqueda == 2" class="input-group">
+        <span class="input-group-text" id="basic-addon3"
+          >Buscar por
+          {{ busqueda == 1 ? "nombre" : busqueda == 2 ? "correo" : "" }}</span
+        >
+        <input type="search" v-model="filtroBuscar" class="form-control" />
+      </div>
     </div>
   </div>
   <div>
@@ -38,7 +36,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, index) in getItems" :key="item.id">
+        <tr v-for="(item, index) in getItems()" :key="item.id">
           <td>{{ item.id }}</td>
           <td>{{ item.name }}</td>
           <td>{{ item.email }}</td>
@@ -115,11 +113,12 @@ export default {
     return {
       title: "Usuarios",
       items: usersData,
+      busqueda: 0,
       modalBootstrapInstance: null,
       userSeleccionado: null,
       indiceSeleccionado: 0,
       nameSeleccionado: "",
-      nameBuscar: "",
+      filtroBuscar: "",
       modalMode: "crear",
     };
   },
@@ -182,27 +181,27 @@ export default {
       console.log($event);
       this.cerrarModal();
     },
-  },
-  computed: {
     getItems() {
       let result = [...this.items];
-      if (this.nameBuscar !== "") {
-        result = this.items.filter((item) => {
-          return item.name === this.nameBuscar;
-        });
+      if (this.busqueda == 1) {
+        if (this.filtroBuscar !== "") {
+          result = this.items.filter((item) =>
+            item.name.includes(this.filtroBuscar)
+          );
+        }
+      } else if (this.busqueda == 2) {
+        if (this.filtroBuscar !== "") {
+          result = this.items.filter((item) =>
+            item.email.includes(this.filtroBuscar)
+          );
+        }
       }
-
-      // if (this.anioAbuscar !== "") {
-      //   result = result.filter((item) => {
-      //     const _marca = item.modelo || "";
-      //     const _textToSearch = this.modeloAbuscar || "";
-      //     return _marca
-      //       .toLowerCase()
-      //       .includes(_textToSearch.toLocaleLowerCase());
-      //   });
-      // }
-
       return result;
+    },
+  },
+  computed: {
+    startItems() {
+      this.getItems();
     },
   },
 };
