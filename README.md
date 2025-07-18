@@ -1,4 +1,4 @@
-# diplomatom6
+# diplomadom6
 
 ## Project setup
 ```
